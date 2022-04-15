@@ -13,7 +13,6 @@ import '../models/date_header.dart';
 import '../models/emoji_enlargement_behavior.dart';
 import '../models/message_spacer.dart';
 import '../models/preview_image.dart';
-import '../models/preview_tap_options.dart';
 import '../models/send_button_visibility_mode.dart';
 import '../util.dart';
 import 'chat_list.dart';
@@ -28,13 +27,11 @@ class Chat extends StatefulWidget {
   /// Creates a chat widget
   const Chat({
     Key? key,
-    this.avatarBuilder,
     this.bubbleBuilder,
     this.customBottomWidget,
     this.customDateHeaderText,
     this.customMessageBuilder,
     this.dateFormat,
-    this.dateHeaderBuilder,
     this.dateHeaderThreshold = 900000,
     this.dateLocale,
     this.disableImageGallery,
@@ -46,10 +43,8 @@ class Chat extends StatefulWidget {
     this.imageMessageBuilder,
     this.isAttachmentUploading,
     this.isLastPage,
-    this.isTextMessageTextSelectable = true,
     this.l10n = const ChatL10nEn(),
     required this.messages,
-    this.nameBuilder,
     this.onAttachmentPressed,
     this.onAvatarTap,
     this.onBackgroundTap,
@@ -60,13 +55,10 @@ class Chat extends StatefulWidget {
     this.onMessageStatusLongPress,
     this.onMessageStatusTap,
     this.onMessageTap,
-    this.onMessageVisibilityChanged,
     this.onPreviewDataFetched,
     required this.onSendPressed,
     this.onTextChanged,
     this.onTextFieldTap,
-    this.previewTapOptions = const PreviewTapOptions(),
-    this.scrollController,
     this.scrollPhysics,
     this.sendButtonVisibilityMode = SendButtonVisibilityMode.editing,
     this.showUserAvatars = false,
@@ -77,9 +69,6 @@ class Chat extends StatefulWidget {
     this.usePreviewData = true,
     required this.user,
   }) : super(key: key);
-
-  /// See [Message.avatarBuilder]
-  final Widget Function(String userId)? avatarBuilder;
 
   /// See [Message.bubbleBuilder]
   final Widget Function(
@@ -111,9 +100,6 @@ class Chat extends StatefulWidget {
   /// make sure you initialize your [DateFormat] with a locale. See [customDateHeaderText]
   /// for more customization.
   final DateFormat? dateFormat;
-
-  /// Custom date header builder gives ability to customize date header widget
-  final Widget Function(DateHeader)? dateHeaderBuilder;
 
   /// Time (in ms) between two messages when we will render a date header.
   /// Default value is 15 minutes, 900000 ms. When time between two messages
@@ -159,9 +145,6 @@ class Chat extends StatefulWidget {
   /// See [ChatList.isLastPage]
   final bool? isLastPage;
 
-  /// See [Message.isTextMessageTextSelectable]
-  final bool isTextMessageTextSelectable;
-
   /// Localized copy. Extend [ChatL10n] class to create your own copy or use
   /// existing one, like the default [ChatL10nEn]. You can customize only
   /// certain properties, see more here [ChatL10nEn].
@@ -169,9 +152,6 @@ class Chat extends StatefulWidget {
 
   /// List of [types.Message] to render in the chat widget
   final List<types.Message> messages;
-
-  /// See [Message.nameBuilder]
-  final Widget Function(String userId)? nameBuilder;
 
   /// See [Input.onAttachmentPressed]
   final void Function()? onAttachmentPressed;
@@ -204,9 +184,6 @@ class Chat extends StatefulWidget {
   /// See [Message.onMessageTap]
   final void Function(BuildContext context, types.Message)? onMessageTap;
 
-  /// See [Message.onMessageVisibilityChanged]
-  final void Function(types.Message, bool visible)? onMessageVisibilityChanged;
-
   /// See [Message.onPreviewDataFetched]
   final void Function(types.TextMessage, types.PreviewData)?
       onPreviewDataFetched;
@@ -219,12 +196,6 @@ class Chat extends StatefulWidget {
 
   /// See [Input.onTextFieldTap]
   final void Function()? onTextFieldTap;
-
-  /// See [Message.previewTapOptions]
-  final PreviewTapOptions previewTapOptions;
-
-  /// See [ChatList.scrollController]
-  final ScrollController? scrollController;
 
   /// See [ChatList.scrollPhysics]
   final ScrollPhysics? scrollPhysics;
@@ -278,7 +249,18 @@ class _ChatState extends State<Chat> {
   @override
   void initState() {
     super.initState();
-
+    _chatMessages.add(
+      Container(
+        margin: EdgeInsets.all(15),
+        padding: EdgeInsets.all(15),
+        decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              width: 1.5,
+            )),
+        child: Text("HOME"),
+      ),
+    );
     didUpdateWidget(widget);
   }
 
@@ -338,9 +320,8 @@ class _ChatState extends State<Chat> {
             pageController: PageController(initialPage: _imageViewIndex),
             scrollPhysics: const ClampingScrollPhysics(),
           ),
-          Positioned.directional(
-            end: 16,
-            textDirection: Directionality.of(context),
+          Positioned(
+            right: 16,
             top: 56,
             child: CloseButton(
               color: Colors.white,
@@ -371,18 +352,14 @@ class _ChatState extends State<Chat> {
 
   Widget _messageBuilder(Object object, BoxConstraints constraints) {
     if (object is DateHeader) {
-      if (widget.dateHeaderBuilder != null) {
-        return widget.dateHeaderBuilder!(object);
-      } else {
-        return Container(
-          alignment: Alignment.center,
-          margin: widget.theme.dateDividerMargin,
-          child: Text(
-            object.text,
-            style: widget.theme.dateDividerTextStyle,
-          ),
-        );
-      }
+      return Container(
+        alignment: Alignment.center,
+        margin: widget.theme.dateDividerMargin,
+        child: Text(
+          object.text,
+          style: widget.theme.dateDividerTextStyle,
+        ),
+      );
     } else if (object is MessageSpacer) {
       return SizedBox(
         height: object.height,
@@ -397,17 +374,14 @@ class _ChatState extends State<Chat> {
 
       return Message(
         key: ValueKey(message.id),
-        avatarBuilder: widget.avatarBuilder,
         bubbleBuilder: widget.bubbleBuilder,
         customMessageBuilder: widget.customMessageBuilder,
         emojiEnlargementBehavior: widget.emojiEnlargementBehavior,
         fileMessageBuilder: widget.fileMessageBuilder,
         hideBackgroundOnEmojiMessages: widget.hideBackgroundOnEmojiMessages,
         imageMessageBuilder: widget.imageMessageBuilder,
-        isTextMessageTextSelectable: widget.isTextMessageTextSelectable,
         message: message,
         messageWidth: _messageWidth,
-        nameBuilder: widget.nameBuilder,
         onAvatarTap: widget.onAvatarTap,
         onMessageDoubleTap: widget.onMessageDoubleTap,
         onMessageLongPress: widget.onMessageLongPress,
@@ -421,9 +395,7 @@ class _ChatState extends State<Chat> {
 
           widget.onMessageTap?.call(context, tappedMessage);
         },
-        onMessageVisibilityChanged: widget.onMessageVisibilityChanged,
         onPreviewDataFetched: _onPreviewDataFetched,
-        previewTapOptions: widget.previewTapOptions,
         roundBorder: map['nextMessageInGroup'] == true,
         showAvatar: map['nextMessageInGroup'] == false,
         showName: map['showName'] == true,
@@ -498,7 +470,6 @@ class _ChatState extends State<Chat> {
                                   onEndReached: widget.onEndReached,
                                   onEndReachedThreshold:
                                       widget.onEndReachedThreshold,
-                                  scrollController: widget.scrollController,
                                   scrollPhysics: widget.scrollPhysics,
                                 ),
                               ),

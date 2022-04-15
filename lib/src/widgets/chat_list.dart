@@ -1,7 +1,6 @@
 import 'package:diffutil_dart/diffutil.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
-
 import 'inherited_chat_theme.dart';
 import 'inherited_user.dart';
 
@@ -15,7 +14,6 @@ class ChatList extends StatefulWidget {
     required this.items,
     this.onEndReached,
     this.onEndReachedThreshold,
-    this.scrollController,
     this.scrollPhysics,
   }) : super(key: key);
 
@@ -41,9 +39,6 @@ class ChatList extends StatefulWidget {
   /// next page when scrolled through about 3/4 of the available content.
   final double? onEndReachedThreshold;
 
-  /// Used to control the chat list scroll view
-  final ScrollController? scrollController;
-
   /// Determines the physics of the scroll view
   final ScrollPhysics? scrollPhysics;
 
@@ -58,7 +53,7 @@ class _ChatListState extends State<ChatList>
   final GlobalKey<SliverAnimatedListState> _listKey =
       GlobalKey<SliverAnimatedListState>();
   late List<Object> _oldData = List.from(widget.items);
-  late ScrollController _scrollController;
+  final _scrollController = ScrollController();
 
   late final AnimationController _controller = AnimationController(vsync: this);
 
@@ -71,7 +66,6 @@ class _ChatListState extends State<ChatList>
   void initState() {
     super.initState();
 
-    _scrollController = widget.scrollController ?? ScrollController();
     didUpdateWidget(widget);
   }
 

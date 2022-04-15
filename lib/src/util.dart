@@ -1,10 +1,8 @@
 import 'dart:math';
 import 'dart:ui';
-
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:intl/intl.dart';
-
 import './models/date_header.dart';
 import './models/emoji_enlargement_behavior.dart';
 import './models/message_spacer.dart';
@@ -160,7 +158,6 @@ List<Object> calculateChatMessages(
       chatMessages.insert(
         0,
         DateHeader(
-          dateTime: DateTime.fromMillisecondsSinceEpoch(message.createdAt!),
           text: customDateHeaderText != null
               ? customDateHeaderText(
                   DateTime.fromMillisecondsSinceEpoch(message.createdAt!),
@@ -178,8 +175,11 @@ List<Object> calculateChatMessages(
     chatMessages.insert(0, {
       'message': message,
       'nextMessageInGroup': nextMessageInGroup,
-      'showName': notMyMessage && showUserNames && showName,
-      'showStatus': message.showStatus ?? true,
+      'showName': notMyMessage &&
+          showUserNames &&
+          showName &&
+          getUserName(message.author).isNotEmpty,
+      'showStatus': true,
     });
 
     if (!nextMessageInGroup) {
@@ -196,14 +196,12 @@ List<Object> calculateChatMessages(
       chatMessages.insert(
         0,
         DateHeader(
-          dateTime:
-              DateTime.fromMillisecondsSinceEpoch(nextMessage!.createdAt!),
           text: customDateHeaderText != null
               ? customDateHeaderText(
-                  DateTime.fromMillisecondsSinceEpoch(nextMessage.createdAt!),
+                  DateTime.fromMillisecondsSinceEpoch(nextMessage!.createdAt!),
                 )
               : getVerboseDateTimeRepresentation(
-                  DateTime.fromMillisecondsSinceEpoch(nextMessage.createdAt!),
+                  DateTime.fromMillisecondsSinceEpoch(nextMessage!.createdAt!),
                   dateFormat: dateFormat,
                   dateLocale: dateLocale,
                   timeFormat: timeFormat,

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
-
 import '../util.dart';
 import 'inherited_chat_theme.dart';
 import 'inherited_l10n.dart';
@@ -27,7 +26,7 @@ class FileMessage extends StatelessWidget {
     return Semantics(
       label: InheritedL10n.of(context).l10n.fileButtonAccessibilityLabel,
       child: Container(
-        padding: EdgeInsetsDirectional.fromSTEB(
+        padding: EdgeInsets.fromLTRB(
           InheritedChatTheme.of(context).theme.messageInsetsVertical,
           InheritedChatTheme.of(context).theme.messageInsetsVertical,
           InheritedChatTheme.of(context).theme.messageInsetsHorizontal,
@@ -53,8 +52,8 @@ class FileMessage extends StatelessWidget {
             ),
             Flexible(
               child: Container(
-                margin: const EdgeInsetsDirectional.only(
-                  start: 16,
+                margin: const EdgeInsets.only(
+                  left: 16,
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,

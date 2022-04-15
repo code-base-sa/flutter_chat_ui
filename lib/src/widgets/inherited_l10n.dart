@@ -1,5 +1,4 @@
 import 'package:flutter/widgets.dart';
-
 import '../chat_l10n.dart';
 
 /// Used to make provided [ChatL10n] class available through the whole package
