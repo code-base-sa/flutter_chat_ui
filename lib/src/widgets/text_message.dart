@@ -117,7 +117,7 @@ class TextMessage extends StatelessWidget {
             ),
           ),
         SelectableText(
-          message.text,
+          message.text + '   ',
           style: user.id == message.author.id
               ? enlargeEmojis
                   ? theme.sentEmojiMessageTextStyle
